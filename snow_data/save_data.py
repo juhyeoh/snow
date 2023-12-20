@@ -10,6 +10,7 @@ user = settings.DATABASE_CONFIG['user']
 password = settings.DATABASE_CONFIG['password']
 port = settings.DATABASE_CONFIG['port']
 serviceKey = settings.DATABASE_CONFIG['serviceKey']
+api_end = settings.DATABASE_CONFIG['api_end']
 
 engine = create_engine("mysql+pymysql://{}:{}@{}/{}".format(user, password, host, database), echo=True)
 Session = sessionmaker(bind=engine)
@@ -74,6 +75,13 @@ class SaveData(object):
         session.commit()
         session.close()
 
+    def stnIds_num(api_end):
+        response = requests.get(api_end)
+        stnIds_num_datas = response.json()
+
+        stnIds_numbers = [num_data('stnIds_number') for num_data in stnIds_num_datas]
+
+        # return stnIds_numbers
 
     def table_ins_data(self):
         ddMes = self.data["response"]["body"]["items"]["item"][0]["ddMes"]
