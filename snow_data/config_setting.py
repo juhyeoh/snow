@@ -1,19 +1,20 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, MetaData, Table, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
 from env import settings
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class SnowApiData(Base):
+    __tablename__ = 'snowdata_table'
+
+    pageNo = Column(Integer, primary_key=True)
+    date = Column(DateTime)
+    stnIds = Column(String(255))
+    ddMefs = Column(Float)
+    ddMes = Column(Float)
 
 def create_db(engine):
-    metadata = MetaData()
-
-    table_set = Table(
-        'snowdata_table', metadata,
-        Column('pageNo', Integer, primary_key=True),
-        Column('stnIds', String(255)),
-        Column('date', DateTime),
-        Column('ddMefs', Float),
-        Column('ddMes', Float),
-        Column('stnNm', String(255))
-    )
-    metadata.create_all(engine)
+    Base.metadata.create_all(engine)
 
 def config_info():
     return {
