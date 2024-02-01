@@ -16,7 +16,7 @@ def operation_db(engine, stn_ids):
     for stn_id in stn_ids.get('stnIds', []):
         for i in range(1, 8):
             date_to_collect = today - timedelta(days=i)
-            date_str = date_to_collect.strftime('%Y-%m-%d')
+            date_str = date_to_collect.strftime('%Y%m%d')
 
             for item in stn_ids.get('data', []):
                 if item.get('stnIds') == stn_id:
@@ -27,6 +27,7 @@ def operation_db(engine, stn_ids):
                     ddMefs = float(ddMefs_str) if ddMefs_str else 0.0
 
                     res_data = {
+                        'pageNo': stn_id,
                         'stnIds': stn_id,
                         'ddMes': ddMes,
                         'ddMefs': ddMefs,
@@ -41,17 +42,17 @@ def main():
     api_config = config_info()
     api_url = f"{api_config['api_end']}?serviceKey={api_config['serviceKey']}"
 
-    stn_ids_from_api = data_from_api(api_url, [])
+    stn_ids_from_api = data_from_api(api_url)
 
-    init_stn_id = None
+    stn_ids = None
 
     if stn_ids_from_api:
-        init_stn_id = stn_ids_from_api[0]
+        stn_ids = stn_ids_from_api[0]
 
     engine = create_db_engine()
 
-    if init_stn_id is not None:
-        operation_db(engine, init_stn_id)
+    if stn_ids is not None:
+        operation_db(engine, stn_ids)
 
 
 if __name__ == "__main__":
