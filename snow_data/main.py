@@ -1,59 +1,56 @@
 from datetime import datetime, timedelta
+import requests
 from sqlalchemy.orm import sessionmaker
-from config_setting import create_db, create_db_engine, config_info
-from stnIds_api import data_from_api
-from config_setting import SnowApiData, Base
+from config_setting import create_db_engine
+from make_list import merged_values
+from config_setting import config_info, SnowApiData, Base
 
-def operation_db(engine, stn_ids):
-    create_db(engine)
+def operation_db(session):
+    merged_data = merged_values
+    api_config = config_info()
+    url = api_config['api_end']
+
+    fir_date = (datetime.now() - timedelta(days=8)).strftime('%Y%m%d')
+    sec_date = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
+
+    for stn_id in merged_data:
+        try: 
+            params = {'serviceKey': api_config['serviceKey'], 'pageNo': 1, 'numOfRows': 7, 'dataType': 'JSON', 'dataCd': 'ASOS', 'dateCd': 'DAY', 'startDt': fir_date, 'endDt': sec_date, 'stnIds': ','.join(merged_data)}
+            response = requests.get(url, params=params)
+            item = response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"{e}")
+            return []
+
+        if stn_id in merged_data:
+            ddMes_str = item.get('ddMes')
+            ddMes = float(ddMes_str) if ddMes_str else 0.0
+
+            ddMefs_str = item.get('ddMefs')
+            ddMefs = float(ddMefs_str) if ddMefs_str else 0.0
+
+            tm = item.get('tm')
+
+            res_data = {
+                'pageNo': 1,
+                'date': tm,
+                'stnIds': stn_id,
+                'ddMefs': ddMefs,
+                'ddMes': ddMes,
+                'stnNm': item.get('stnNm')
+            }
+            session.add(SnowApiData(**res_data))
+    session.commit()
+
+def main():
+    engine = create_db_engine()
     Session = sessionmaker(bind=engine)
     session = Session()
 
     Base.metadata.create_all(engine)
+    operation_db(session)
 
-    today = datetime.now()
-
-    for stn_id in stn_ids.get('stnIds', []):
-        for i in range(1, 8):
-            date_to_collect = today - timedelta(days=i)
-            date_str = date_to_collect.strftime('%Y%m%d')
-
-            for item in stn_ids.get('data', []):
-                if item.get('stnIds') == stn_id:
-                    ddMes_str = item.get('ddMes')
-                    ddMes = float(ddMes_str) if ddMes_str else 0.0
-
-                    ddMefs_str = item.get('ddMefs')
-                    ddMefs = float(ddMefs_str) if ddMefs_str else 0.0
-
-                    res_data = {
-                        'pageNo': stn_id,
-                        'stnIds': stn_id,
-                        'ddMes': ddMes,
-                        'ddMefs': ddMefs,
-                        'stnNm': item.get('stnNm'),
-                        'date': date_str
-                    }
-                    session.add(SnowApiData(**res_data))
-    session.commit()
     session.close()
-
-def main():
-    api_config = config_info()
-    api_url = f"{api_config['api_end']}?serviceKey={api_config['serviceKey']}"
-
-    stn_ids_from_api = data_from_api(api_url)
-
-    stn_ids = None
-
-    if stn_ids_from_api:
-        stn_ids = stn_ids_from_api[0]
-
-    engine = create_db_engine()
-
-    if stn_ids is not None:
-        operation_db(engine, stn_ids)
-
 
 if __name__ == "__main__":
     main()

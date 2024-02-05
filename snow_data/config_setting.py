@@ -6,11 +6,11 @@ import logging
 Base = declarative_base()
 
 class SnowApiData(Base):
-    __tablename__ = 'save_table'
+    __tablename__ = 'snowdata_collector'
 
-    pageNo = Column(Integer, primary_key=True)
+    pageNo = Column(Integer)
     date = Column(DateTime)
-    stnIds = Column(String(255))
+    stnIds = Column(String(255), primary_key=True)
     ddMefs = Column(Float)
     ddMes = Column(Float)
     stnNm = Column(String(12))
