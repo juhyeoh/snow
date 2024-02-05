@@ -7,10 +7,11 @@ Base = declarative_base()
 
 class SnowApiData(Base):
     __tablename__ = 'snowdata_collector'
-
+    
+    id = Column(Integer, autoincrement=True, primary_key=True)
     pageNo = Column(Integer)
     date = Column(DateTime)
-    stnIds = Column(String(255), primary_key=True)
+    stnIds = Column(String(255))
     ddMefs = Column(Float)
     ddMes = Column(Float)
     stnNm = Column(String(12))
