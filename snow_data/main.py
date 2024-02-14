@@ -18,28 +18,27 @@ def operation_db(session):
             params = {'serviceKey': api_config['serviceKey'], 'pageNo': 1, 'numOfRows': 7, 'dataType': 'JSON', 'dataCd': 'ASOS', 'dateCd': 'DAY', 'startDt': fir_date, 'endDt': sec_date, 'stnIds': ','.join(merged_data)}
             response = requests.get(url, params=params)
             item = response.json()
+
+            if stn_id in merged_data:
+                ddMes_str = item.get('ddMes')
+                ddMes = float(ddMes_str) if ddMes_str else 0.0
+
+                ddMefs_str = item.get('ddMefs')
+                ddMefs = float(ddMefs_str) if ddMefs_str else 0.0
+                tm = item.get('tm')
+
+                res_data = {
+                    'date': tm,
+                    'stnIds': stn_id,
+                    'ddMefs': ddMefs,
+                    'ddMes': ddMes,
+                    'stnNm': item.get('stnNm')
+                }
+                session.add(SnowApiData(**res_data))
         except requests.exceptions.RequestException as e:
             print(f"{e}")
             return []
 
-        if stn_id in merged_data:
-            ddMes_str = item.get('ddMes')
-            ddMes = float(ddMes_str) if ddMes_str else 0.0
-
-            ddMefs_str = item.get('ddMefs')
-            ddMefs = float(ddMefs_str) if ddMefs_str else 0.0
-
-            tm = item.get('tm')
-
-            res_data = {
-                'pageNo': 1,
-                'date': tm,
-                'stnIds': stn_id,
-                'ddMefs': ddMefs,
-                'ddMes': ddMes,
-                'stnNm': item.get('stnNm')
-            }
-            session.add(SnowApiData(**res_data))
     session.commit()
 
 def main():

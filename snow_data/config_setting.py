@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date
 from env import settings
 from sqlalchemy.ext.declarative import declarative_base
 import logging
@@ -9,8 +9,7 @@ class SnowApiData(Base):
     __tablename__ = 'snowdata_collector'
     
     id = Column(Integer, autoincrement=True, primary_key=True)
-    pageNo = Column(Integer)
-    date = Column(DateTime)
+    date = Column(Date)
     stnIds = Column(String(255))
     ddMefs = Column(Float)
     ddMes = Column(Float)
