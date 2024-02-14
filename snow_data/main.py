@@ -13,43 +13,55 @@ def operation_db(session):
     fir_date = (datetime.now() - timedelta(days=8)).strftime('%Y%m%d')
     sec_date = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
 
-    for stn_id in merged_data:
-        try: 
-            params = {'serviceKey': api_config['serviceKey'], 'pageNo': 1, 'numOfRows': 7, 'dataType': 'JSON', 'dataCd': 'ASOS', 'dateCd': 'DAY', 'startDt': fir_date, 'endDt': sec_date, 'stnIds': ','.join(merged_data)}
-            response = requests.get(url, params=params)
-            item = response.json()
+    try:
+        stn_ids = ','.join(merged_data)
 
-            if stn_id in merged_data:
-                ddMes_str = item.get('ddMes')
-                ddMes = float(ddMes_str) if ddMes_str else 0.0
+        params = {
+            'serviceKey': api_config['serviceKey'],
+            'pageNo': 1,
+            'numOfRows': 7,
+            'dataType': 'JSON',
+            'dataCd': 'ASOS',
+            'dateCd': 'DAY',
+            'startDt': fir_date,
+            'endDt': sec_date,
+            'stnIds': stn_ids
+        }
+        response = requests.get(url, params=params)
+        data = response.json()
 
-                ddMefs_str = item.get('ddMefs')
-                ddMefs = float(ddMefs_str) if ddMefs_str else 0.0
-                tm = item.get('tm')
+        for item in data:
+            stn_id = item.get('stnIds')
 
-                res_data = {
-                    'date': tm,
-                    'stnIds': stn_id,
-                    'ddMefs': ddMefs,
-                    'ddMes': ddMes,
-                    'stnNm': item.get('stnNm')
-                }
-                session.add(SnowApiData(**res_data))
-        except requests.exceptions.RequestException as e:
-            print(f"{e}")
-            return []
+            ddMes_str = item.get('ddMes')
+            ddMes = float(ddMes_str) if ddMes_str else 0.0
 
-    session.commit()
+            ddMefs_str = item.get('ddMefs')
+            ddMefs = float(ddMefs_str) if ddMefs_str else 0.0
+
+            tm = item.get('tm')
+
+            res_data = {
+                'date': tm,
+                'stnIds': stn_id,
+                'ddMefs': ddMefs,
+                'ddMes': ddMes,
+                'stnNm': item.get('stnNm')
+            }
+            session.add(SnowApiData(**res_data))
+
+        session.commit()
+
+    except requests.exceptions.RequestException as e:
+        print(f"{e}")
 
 def main():
     engine = create_db_engine()
     Session = sessionmaker(bind=engine)
-    session = Session()
 
-    Base.metadata.create_all(engine)
-    operation_db(session)
-
-    session.close()
+    with Session() as session:
+        Base.metadata.create_all(engine)
+        operation_db(session)
 
 if __name__ == "__main__":
     main()
