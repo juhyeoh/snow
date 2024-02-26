@@ -1,7 +1,8 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
 from env import settings
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 import logging
+# import psycopg2 as db
 
 Base = declarative_base()
 
@@ -9,7 +10,7 @@ class SnowApiData(Base):
     __tablename__ = 'snowdata_collector'
     
     id = Column(Integer, autoincrement=True, primary_key=True)
-    date = Column(Date)
+    date = Column(DateTime)
     stnIds = Column(String(255))
     ddMefs = Column(Float)
     ddMes = Column(Float)
@@ -32,7 +33,12 @@ def config_info():
 
 def create_db_engine():
     config = config_info()
-    engine = create_engine("mysql+pymysql://{}:{}@{}:{}/{}".format(config['user'], config['password'], config['host'], config['port'], config['database']), echo=True)
+    # engine = create_engine("mysql+pymysql://{}:{}@{}:{}/{}".format(config['user'], config['password'], config['host'], config['port'], config['database']), echo=True)
+    # engine = create_engine("jdbc:postgresql://{}:{}/{}".format(config['host'], config['port'], config['database']))
+    engine = create_engine(
+        f"postgresql+psycopg2://{config['user']}:{config['password']}@{config['host']}:{config['port']}/{config['database']}",
+        echo=True
+    )
     return engine
 
 logging.basicConfig()

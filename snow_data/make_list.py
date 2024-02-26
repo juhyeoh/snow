@@ -21,11 +21,21 @@ def col_value(csv_file, col_nm):
 
     return stn_val
 
-def merge_col(col1_values, col4_values):
-    merged_values = col1_values + col4_values[:-5]
-    return merged_values
+def merge_id_col(col1_values, col4_values):
+    merged_id_values = col1_values + col4_values[:-5]
+    return merged_id_values
+
+def merge_nm_col(col2_values, col5_values):
+    merged_nm_values = col2_values + col5_values[:-5]
+    return merged_nm_values
+
 
 col1_values = col_value(csv_file, '지점1')
+col2_values = col_value(csv_file, '지점명1')
 col4_values = col_value(csv_file, '지점2')
+col5_values = col_value(csv_file, '지점명2')
 
-merged_values = merge_col(col1_values, col4_values)
+merged_id_values = merge_id_col(col1_values, col4_values)
+merged_nm_values = merge_nm_col(col2_values, col5_values)
+
+merged_data = zip(merged_id_values, merged_nm_values)
