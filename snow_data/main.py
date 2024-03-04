@@ -27,12 +27,14 @@ def operation_db(session):
                 'stnIds': stn_id
             }
             response = requests.get(url, params=params)
-            data = response.json()
+            data = response.json().get('response')
 
             if data and 'body' in data:
                 items = data['body'].get('items')
                 for item in items:
-                    if isinstance(item, dict):
+                    try:
+                        if not isinstance(item, dict):
+                            item = dict(item)
                         tm = item.get('tm')
                         stn_nm = item.get('stnNm')
 
@@ -50,6 +52,8 @@ def operation_db(session):
                             'stnNm': stn_nm
                         }
                         session.add(SnowApiData(**res_data))
+                    except Exception as e:
+                        print(f"An error occurred: {e}")
         except requests.exceptions.RequestException as e:
             print(f"{e}")
     session.commit()
