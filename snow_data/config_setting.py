@@ -2,7 +2,6 @@ from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime
 from env import settings
 from sqlalchemy.orm import declarative_base
 import logging
-# import psycopg2 as db
 
 Base = declarative_base()
 
@@ -33,13 +32,14 @@ def config_info():
 
 def create_db_engine():
     config = config_info()
-    # engine = create_engine("mysql+pymysql://{}:{}@{}:{}/{}".format(config['user'], config['password'], config['host'], config['port'], config['database']), echo=True)
-    # engine = create_engine("jdbc:postgresql://{}:{}/{}".format(config['host'], config['port'], config['database']))
     engine = create_engine(
         f"postgresql+psycopg2://{config['user']}:{config['password']}@{config['host']}:{config['port']}/{config['database']}",
         echo=True
     )
     return engine
+
+engine = create_db_engine()
+create_db(engine)
 
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)

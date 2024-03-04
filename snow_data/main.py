@@ -1,3 +1,4 @@
+import json
 import requests
 from datetime import datetime, timedelta
 from sqlalchemy.orm import sessionmaker
@@ -9,8 +10,8 @@ def operation_db(session):
     api_config = config_info()
     url = api_config['api_end']
 
-    fir_date = (datetime.now() - timedelta(days=8)).strftime('%Y%m%d')
-    sec_date = (datetime.now() - timedelta(days=2)).strftime('%Y%m%d')
+    fir_date = (datetime.now() - timedelta(days=7)).strftime('%Y%m%d')
+    sec_date = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
 
     for stn_id, stn_nm in merged_data:
         try:
@@ -26,14 +27,14 @@ def operation_db(session):
                 'stnIds': stn_id
             }
             response = requests.get(url, params=params)
-            response_data = response.json().get('response')
+            data = response.json()
 
-            if response_data and 'body' in response_data:
-                items = response_data['body'].get('items')
-
+            if data and 'body' in data:
+                items = data['body'].get('items')
                 for item in items:
                     if isinstance(item, dict):
                         tm = item.get('tm')
+                        stn_nm = item.get('stnNm')
 
                         ddMes_str = item.get('ddMes')
                         ddMes = float(ddMes_str) if ddMes_str else 0.0
@@ -48,13 +49,11 @@ def operation_db(session):
                             'ddMes': ddMes,
                             'stnNm': stn_nm
                         }
-                        print(res_data)
                         session.add(SnowApiData(**res_data))
         except requests.exceptions.RequestException as e:
             print(f"{e}")
-            return []
-
     session.commit()
+    
 
 def main():
     engine = create_db_engine()
