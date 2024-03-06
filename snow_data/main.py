@@ -33,22 +33,23 @@ def operation_db(session):
             if data and 'body' in data:
                 items = data['body'].get('items')
                 
-                tm = items['item'][0]['tm']
-                format_date = datetime.strptime(tm, '%Y-%m-%d')
-                date = format_date.strftime('%Y-%m-%d')
-                ddMes_str = items['item'][0]['ddMes']
-                ddMes = float(ddMes_str) if ddMes_str else 0.0
-                ddMefs_str = items['item'][0]['ddMefs']
-                ddMefs = float(ddMefs_str) if ddMefs_str else 0.0
-                
-                res_data = {
-                    'stnIds': stn_id,
-                    'stnNm': stn_nm,
-                    'date': date,
-                    'ddMes': ddMes,
-                    'ddMefs': ddMefs
-                }
-                session.add(SnowApiData(**res_data))
+                for item in items['item']:
+                    tm = item['tm']
+                    format_date = datetime.strptime(tm, '%Y-%m-%d')
+                    date = format_date.strftime('%Y-%m-%d')
+                    ddMes_str = items['item'][0]['ddMes']
+                    ddMes = float(ddMes_str) if ddMes_str else 0.0
+                    ddMefs_str = items['item'][0]['ddMefs']
+                    ddMefs = float(ddMefs_str) if ddMefs_str else 0.0
+                    
+                    res_data = {
+                        'stnIds': stn_id,
+                        'stnNm': stn_nm,
+                        'date': date,
+                        'ddMes': ddMes,
+                        'ddMefs': ddMefs
+                    }
+                    session.add(SnowApiData(**res_data))
                 
         except requests.exceptions.RequestException as e:
             print(f"{e}")
