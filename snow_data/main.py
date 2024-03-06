@@ -28,30 +28,28 @@ def operation_db(session):
             }
             response = requests.get(url, params=params)
             data = response.json().get('response')
-            
-            print(data)
+            # print(data)
             
             if data and 'body' in data:
                 items = data['body'].get('items')
-                for item in items:
-                    if isinstance(item, dict):
-                        tm = item.get('tm')
-                        stn_nm = item.get('stnNm')
-
-                        ddMes_str = item.get('ddMes')
-                        ddMes = float(ddMes_str) if ddMes_str else 0.0
-
-                        ddMefs_str = item.get('ddMefs')
-                        ddMefs = float(ddMefs_str) if ddMefs_str else 0.0
-
-                        res_data = {
-                            'date': datetime.strptime(tm, '%Y-%m-%d').date(),
-                            'stnIds': stn_id,
-                            'ddMefs': ddMefs,
-                            'ddMes': ddMes,
-                            'stnNm': stn_nm
-                        }
-                        session.add(SnowApiData(**res_data))
+                
+                tm = items['item'][0]['tm']
+                format_date = datetime.strptime(tm, '%Y-%m-%d')
+                date = format_date.strftime('%Y-%m-%d')
+                ddMes_str = items['item'][0]['ddMes']
+                ddMes = float(ddMes_str) if ddMes_str else 0.0
+                ddMefs_str = items['item'][0]['ddMefs']
+                ddMefs = float(ddMefs_str) if ddMefs_str else 0.0
+                
+                res_data = {
+                    'stnIds': stn_id,
+                    'stnNm': stn_nm,
+                    'date': date,
+                    'ddMes': ddMes,
+                    'ddMefs': ddMefs
+                }
+                session.add(SnowApiData(**res_data))
+                
         except requests.exceptions.RequestException as e:
             print(f"{e}")
     session.commit()
