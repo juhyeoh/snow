@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Date
+from sqlalchemy import create_engine, Column, Integer, String, Float, Date
 from env import settings
 from sqlalchemy.orm import declarative_base
 import logging
