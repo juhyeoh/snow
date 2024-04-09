@@ -1,12 +1,15 @@
 import requests
+import os
 from datetime import datetime, timedelta
 from make_list import merged_data
-from config_setting import config_info, SnowApiData
+from config_setting import SnowApiData
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 def oper_db(session):
-    api_config = config_info()
-    url = api_config['api_end']
+    url = os.environ.get('api_url')
 
     fir_date = (datetime.now() - timedelta(days=7)).strftime('%Y%m%d')
     sec_date = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d')
@@ -14,7 +17,7 @@ def oper_db(session):
     for stn_id, stn_nm in merged_data:
         try:
             params = {
-                'serviceKey': api_config['serviceKey'],
+                'serviceKey': os.environ.get('service_key'),
                 'pageNo': 1,
                 'numOfRows': 7,
                 'dataType': 'JSON',
