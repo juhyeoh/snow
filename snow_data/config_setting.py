@@ -1,8 +1,10 @@
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date
-from env import settings
+from dotenv import load_dotenv
 from sqlalchemy.orm import declarative_base
 import logging
+import os
 
+load_dotenv()
 Base = declarative_base()
 
 class SnowApiData(Base):
@@ -20,13 +22,13 @@ def create_db(engine):
 
 def config_info():
     return {
-        'host': settings.DATABASE_CONFIG['host'],
-        'database': settings.DATABASE_CONFIG['database'],
-        'user': settings.DATABASE_CONFIG['user'],
-        'password': settings.DATABASE_CONFIG['password'],
-        'port': settings.DATABASE_CONFIG['port'],
-        'serviceKey': settings.DATABASE_CONFIG['serviceKey'],
-        'api_end': settings.DATABASE_CONFIG['api_end'],
+        'host': os.environ.get('DB_HOST'),
+        'database': os.environ.get('DB_NAME'),
+        'user': os.environ.get('DB_USER'),
+        'password': os.environ.get('DB_PASSWORD'),
+        'port': os.environ.get('DB_PORT'),
+        'serviceKey': os.environ.get('service_key'),
+        'api_end': os.environ.get('api_url'),
     }
 
 
