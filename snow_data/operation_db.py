@@ -26,7 +26,6 @@ def oper_db(session):
             }
             response = requests.get(url, params=params)
             data = response.json().get('response')
-            # print(data)
             
             if data and 'body' in data:
                 items = data['body'].get('items')
