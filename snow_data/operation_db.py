@@ -18,8 +18,8 @@ def oper_db(session):
         try:
             params = {
                 'serviceKey': os.environ.get('service_key'),
-                'pageNo': 1,
-                'numOfRows': 7,
+                # 'pageNo': 1,
+                # 'numOfRows': 7,
                 'dataType': 'JSON',
                 'dataCd': 'ASOS',
                 'dateCd': 'DAY',
