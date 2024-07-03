@@ -1,6 +1,6 @@
 import csv
 
-csv_file = "C:/Users/yjwon-test/Desktop/2024/Python_2024/asos/snow_data"
+csv_file = "C:/Users/yjwon-test/Desktop/2024/Python_2024/asos/snow_data/stnIds_list.csv"
 
 
 def col_value(csv_file, col_nm):
